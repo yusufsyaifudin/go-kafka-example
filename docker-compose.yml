@@ -1,0 +1,35 @@
+version: '3'
+services:
+  api:
+    build:
+      context: .
+      dockerfile: api.dockerfile
+    container_name: api
+    ports: 
+      - "9091:9091"
+    environment:
+      LISTEN_ADDRESS: '0.0.0.0:9091'
+      KAFKA_BROKERS: '${MY_IP}:19092,${MY_IP}:29092,${MY_IP}:39092'
+      KAFKA_CLIENT_ID: 'my-client'
+      KAFKA_TOPIC: 'foo'
+
+  worker1:
+    build:
+      context: .
+      dockerfile: worker.dockerfile
+    container_name: worker1
+    environment:
+      KAFKA_BROKERS: '${MY_IP}:19092,${MY_IP}:29092,${MY_IP}:39092'
+      KAFKA_CLIENT_ID: 'my-client'
+      KAFKA_TOPIC: 'foo'
+
+  worker2:
+    build:
+      context: .
+      dockerfile: worker.dockerfile
+    container_name: worker2
+    environment:
+      KAFKA_BROKERS: '${MY_IP}:19092,${MY_IP}:29092,${MY_IP}:39092'
+      KAFKA_CLIENT_ID: 'my-client'
+      KAFKA_TOPIC: 'foo'
+

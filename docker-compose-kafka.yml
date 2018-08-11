@@ -1,0 +1,106 @@
+# image repo https://github.com/confluentinc/cp-docker-images
+# create topic: docker run --net=host --rm confluentinc/cp-kafka:5.0.0 kafka-topics --create --topic foo --partitions 4 --replication-factor 2 --if-not-exists --zookeeper localhost:32181
+
+version: '3'
+services:
+  zk1:
+    image: confluentinc/cp-zookeeper:5.0.0
+    container_name: zk1
+    ports: 
+      - "22181:22181"
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 22181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: zk1:22888:23888;zk2:32888:33888;zk3:42888:43888
+    volumes:
+      - ./kafka/zk1/data:/var/lib/zookeeper/data
+      - ./kafka/zk1/log:/var/lib/zookeeper/log
+      # - ./kafka/zk1/secrets:/var/lib/zookeeper/secrets
+
+  zk2:
+    image: confluentinc/cp-zookeeper:5.0.0
+    container_name: zk2
+    ports:
+      - "32181:32181"
+    environment:
+      ZOOKEEPER_SERVER_ID: 2
+      ZOOKEEPER_CLIENT_PORT: 32181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: zk1:22888:23888;zk2:32888:33888;zk3:42888:43888
+    volumes:
+      - ./kafka/zk2/data:/var/lib/zookeeper/data
+      - ./kafka/zk2/log:/var/lib/zookeeper/log
+      # - ./kafka/zk2/secrets:/var/lib/zookeeper/secrets
+
+  zk3:
+    image: confluentinc/cp-zookeeper:5.0.0
+    container_name: zk3
+    ports: 
+      - "42181:42181"
+    environment:
+      ZOOKEEPER_SERVER_ID: 3
+      ZOOKEEPER_CLIENT_PORT: 42181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+      ZOOKEEPER_SERVERS: zk1:22888:23888;zk2:32888:33888;zk3:42888:43888
+    volumes:
+      - ./kafka/zk3/data:/var/lib/zookeeper/data
+      - ./kafka/zk3/log:/var/lib/zookeeper/log
+      # - ./kafka/zk3/secrets:/var/lib/zookeeper/secrets
+
+  kafka1:
+    image: confluentinc/cp-kafka:5.0.0
+    container_name: kafka1
+    ports:
+      - "19092:19092"
+    depends_on:
+      - zk1
+      - zk2
+      - zk3
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: ${MY_IP}:22181,${MY_IP}:32181,${MY_IP}:42181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${MY_IP}:19092
+    volumes:
+      - ./kafka/kafka1/data:/var/lib/kafka/data
+      # - ./kafka/kafka3/secrets:/var/lib/kafka/secrets
+
+  kafka2:
+    image: confluentinc/cp-kafka:5.0.0
+    container_name: kafka2
+    ports:
+      - "29092:29092"
+    depends_on:
+      - zk1
+      - zk2
+      - zk3
+    environment:
+      KAFKA_BROKER_ID: 2
+      KAFKA_ZOOKEEPER_CONNECT: ${MY_IP}:22181,${MY_IP}:32181,${MY_IP}:42181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${MY_IP}:29092
+    volumes:
+      - ./kafka/kafka2/data:/var/lib/kafka/data
+      # - ./kafka/kafka3/secrets:/var/lib/kafka/secrets
+
+  kafka3:
+    image: confluentinc/cp-kafka:5.0.0
+    container_name: kafka3
+    ports: 
+      - "39092:39092"
+    depends_on:
+      - zk1
+      - zk2
+      - zk3
+    environment:
+      KAFKA_BROKER_ID: 3
+      KAFKA_ZOOKEEPER_CONNECT: ${MY_IP}:22181,${MY_IP}:32181,${MY_IP}:42181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://${MY_IP}:39092
+    volumes:
+      - ./kafka/kafka3/data:/var/lib/kafka/data
+      # - ./kafka/kafka3/secrets:/var/lib/kafka/secrets
