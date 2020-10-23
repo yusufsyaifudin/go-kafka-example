@@ -6,6 +6,12 @@ services:
   zk1:
     image: confluentinc/cp-zookeeper:5.0.0
     container_name: zk1
+    restart: always
+    healthcheck:
+      test: echo stat | nc localhost 22181
+      interval: 10s
+      timeout: 10s
+      retries: 3
     ports: 
       - "22181:22181"
     environment:
@@ -23,6 +29,12 @@ services:
   zk2:
     image: confluentinc/cp-zookeeper:5.0.0
     container_name: zk2
+    restart: always
+    healthcheck:
+      test: echo stat | nc localhost 32181
+      interval: 10s
+      timeout: 10s
+      retries: 3
     ports:
       - "32181:32181"
     environment:
@@ -40,6 +52,12 @@ services:
   zk3:
     image: confluentinc/cp-zookeeper:5.0.0
     container_name: zk3
+    restart: always
+    healthcheck:
+      test: echo stat | nc localhost 42181
+      interval: 10s
+      timeout: 10s
+      retries: 3
     ports: 
       - "42181:42181"
     environment:
@@ -57,6 +75,9 @@ services:
   kafka1:
     image: confluentinc/cp-kafka:5.0.0
     container_name: kafka1
+    restart: always
+    healthcheck:
+      test: ps augwwx | egrep [S]upportedKafka
     ports:
       - "19092:19092"
     depends_on:
@@ -74,6 +95,9 @@ services:
   kafka2:
     image: confluentinc/cp-kafka:5.0.0
     container_name: kafka2
+    restart: always
+    healthcheck:
+      test: ps augwwx | egrep [S]upportedKafka
     ports:
       - "29092:29092"
     depends_on:
@@ -91,6 +115,9 @@ services:
   kafka3:
     image: confluentinc/cp-kafka:5.0.0
     container_name: kafka3
+    restart: always
+    healthcheck:
+      test: ps augwwx | egrep [S]upportedKafka
     ports: 
       - "39092:39092"
     depends_on:
